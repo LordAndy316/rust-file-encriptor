@@ -10,6 +10,7 @@ private:
     int p,q,n,d,e;
     bool isPrime(int);
     int randPrime();
+    int makeE(int, int);
     
     
 public:
@@ -24,10 +25,13 @@ public:
 
 RSA::RSA(/* args */)
 {
-p = randPrime();
-q = randPrime();
-n = q*p;
-e = 3;
+// p = randPrime();
+// q = randPrime();
+p = 2;
+q=7;
+n = p*q;
+e = makeE(p,q);
+d= 11;
 cout<<q<<"  "<<p;
 
 }
@@ -60,23 +64,33 @@ int RSA::encrypt(int message){
     return crypt;
 }
 int RSA::decrypt(int crypt,int public_key,int Private_key){
-    long message = pow(crypt,1);
-
-    message = message % n;
-    
+    double message = (pow(10,11));
+    message = fmod(message,n);
     return message;
 }
+
+
+
+
 int RSA::getPublicKey(){
     return n;
 }
-// long RSA::nBitRandom(int n)
-// {
-//     // Returns a random number
-//     // between 2**(n-1)+1 and 2**n-1'''
-//     long max = (long)powl(2, n) - 1;
-//     long min = (long)powl(2, n - 1) + 1;
-//     return min + (rand() % ( max - min + 1 ) );
-// }
+
+
+
+
+
+
+
+
+
+
+int decrypt(int crypt,int public_key,int Private_key){
+    double message = (pow(10,11));
+    message = fmod(message,public_key);
+    return message;
+}
+
 int main()
 {
     
@@ -85,7 +99,7 @@ int main()
     //cout<<rr.nBitRandom(1000000000)<<" this is a random long"<<endl;
     int crypted = rr.encrypt(12);
     cout<<"crypt "<<crypted<<endl;
-    int decrypted= rr.decrypt(crypted,rr.getPublicKey(),1);
+    int decrypted= rr.decrypt(crypted,rr.getPublicKey(),11);
     cout<<"decrypt "<<decrypted<<endl;
     return 0;
 }
