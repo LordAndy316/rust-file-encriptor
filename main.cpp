@@ -1,6 +1,9 @@
 #include <iostream>
 #include <cmath>
 #include <tuple>
+#include <fstream>
+#include <vector>
+#include <sstream>
 using namespace std;
 
 
@@ -56,50 +59,103 @@ tuple<int, int, int> generateKeys()
     return make_tuple(n, e, d);
 }
 
-long long int encrypt(double message, int public_key, int n)
+void write_to_file(string file_path, string message){
+    ofstream FileWriter(file_path);
+    if(FileWriter.is_open()){
+        FileWriter << message;
+        FileWriter.close();
+    }
+    else{
+        cout<<"error file writer not open\n";
+    }    
+}
+
+long long int encrypt_char(char character, int public_key, int n)
 {
     long long int e = 1;
+    double message = double(character);
     while(public_key--){
         e *= message;
         e %= n;
     }
     return e;
-    /*unsigned long crypt = (pow(message, public_key));
-
-    crypt = crypt % n;
-
-    return crypt;*/
+}
+void encrypt_file(string file_path, int public_key, int n){
+    string line = "";
+    ifstream FileReader(file_path);
+    vector<long long int> encrypted_chars;
+    if(FileReader.is_open()){
+        while (getline (FileReader, line)) {
+            for (char& c : line){
+                encrypted_chars.push_back(encrypt_char(int(c), public_key, n));
+            }
+            encrypted_chars.push_back(encrypt_char(int('\n'), public_key, n));
+        }
+        FileReader.close();
+    }else{
+        cout<<"error file reader could not open \n";
+    }
+    string out;
+    for(long long int& i : encrypted_chars){
+        out += to_string(i) + " ";
+    }
+    
+    write_to_file("encrypted_" + file_path, out);
 }
 
-long long int decrypt(int encrypted, int n, int private_key)
+char decrypt_char(long long int encrypted, int private_key, int n)
 {
     long long int d = 1;
     while(private_key--){
         d *= encrypted;
         d %= n;
     }
-    return d;
-    /*
-    long double message = (pow(encrypted, private_key));
-    message = fmod(message, n);
-    return message;*/
-    
+    return char(d);
 }
+void decrypt_file(string file_path,int private_key, int n){
+    string line = "";
+    ifstream FileReader(file_path);
+    vector<int> decrypted_chars;
+    if(FileReader.is_open()){
+        while (getline (FileReader, line)) {
+            
+            istringstream iss(line);
+            string c;
+            while(iss >> c){
+                decrypted_chars.push_back(stoi(c));
+
+            }
+        }
+        FileReader.close();
+    }else{
+        cout<<"error file reader could not open \n";
+    }
+    string out;
+    for (int& i : decrypted_chars){
+        
+        out += decrypt_char(i, private_key, n);
+    }
+    write_to_file("decrypted_" + file_path, out);
+}
+
+
 int main(int argc, char const *argv[])
 {
-    int message = 10;
+    char message = '2';
     tuple<int,int,int> result = generateKeys();
     int e = get<1>(result);
     int d = get<2>(result);
     int n = get<0>(result);
-    int cypher = encrypt(message,e, n);
-    int uncrypt = decrypt(cypher, n, d);
+    long long int cypher = encrypt_char(message, e, n);
+    int uncrypt = decrypt_char(cypher, d, n);
 
     cout<<get<0>(result)<<" n "<<endl;
     cout<<get<1>(result)<<" e "<<endl;
     cout<<get<2>(result)<<" d "<<endl;
     cout<<cypher<<" encrypted text"<<endl;
-    cout<<uncrypt<<" should be "<<message<<endl;
+    cout<<char(uncrypt)<<" should be "<<message<<endl;
     
+    encrypt_file("test.txt", e, n);
+    decrypt_file("encrypted_test.txt", d, n);
     return 0;
 }
