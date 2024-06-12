@@ -52,7 +52,7 @@ int findD(int e, int cm){
 tuple<int, int, int> generateKeys()
 {
     tuple<int,int> primes = generatePrimes();
-    int n = get<0>(primes) * get<1>(primes); 
+    int n = get<0>(primes) * get<1>(primes);
     int cm = carmicael(get<0>(primes),get<1>(primes));
     int e = findE(cm, get<0>(primes), get<1>(primes));
     int d = findD(e, cm);
